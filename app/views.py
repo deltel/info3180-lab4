@@ -40,7 +40,7 @@ def upload():
         if form.validate_on_submit():
             upload_ = form.upload.data
             filename = secure_filename(upload_.filename)
-            upload_.save(os.path.join(app.config['UPLOAD_FOLDER']), filename)
+            upload_.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         # Get file data and save to your uploads folder
 
         flash('File Saved', 'success')
@@ -69,7 +69,20 @@ def logout():
     flash('You were logged out', 'success')
     return redirect(url_for('home'))
 
+@app.route('/files')
+def files():
+    if not session.get('logged_in'):
+        abort(401)
+    images=get_upload_images()
+    return render_template('files.html', images=images)
 
+def get_upload_images():
+    rootdir = os.getcwd()
+    imgList = []
+    for subdir, dirs, files in os.walk(rootdir + app.config['UPLOAD_FOLDER']):     
+        for file_ in files:
+            imgList += [file_]      
+    return imgList[1:]
 ###
 # The functions below should be applicable to all Flask apps.
 ###
